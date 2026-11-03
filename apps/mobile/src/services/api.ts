@@ -32,7 +32,7 @@ function resolveApiBaseUrl(): string {
     // Ignore NativeModules lookup error in non-RN environments
   }
 
-  return 'http://192.168.1.11:3001';
+  return 'https://germin-trainer.onrender.com';
 }
 
 const DEFAULT_API_BASE_URL = resolveApiBaseUrl();
