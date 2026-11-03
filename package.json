@@ -11,6 +11,7 @@
     "schema": "apps/server/prisma/schema.prisma"
   },
   "scripts": {
+    "postinstall": "npm run build:shared",
     "build": "npm run build:shared && npm run build:server && npm run build:mobile",
     "build:shared": "npm run build --workspace=@garmin-trainer/shared",
     "build:server": "npm run build --workspace=@garmin-trainer/server",
