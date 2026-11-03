@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: garmin-ai-trainer-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run prisma:generate && npm run build:shared && npm run build:server
+    startCommand: npm run start --workspace=@garmin-trainer/server
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GARMIN_ENCRYPTION_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false

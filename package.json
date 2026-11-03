@@ -1,0 +1,33 @@
+{
+  "name": "garmin-trainer-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "prisma": {
+    "schema": "apps/server/prisma/schema.prisma"
+  },
+  "scripts": {
+    "build": "npm run build:shared && npm run build:server && npm run build:mobile",
+    "build:shared": "npm run build --workspace=@garmin-trainer/shared",
+    "build:server": "npm run build --workspace=@garmin-trainer/server",
+    "build:mobile": "npm run build --workspace=@garmin-trainer/mobile",
+    "dev": "npm run build:shared && concurrently -n \"shared,server,mobile\" -c \"yellow,cyan,magenta\" \"npm run dev --workspace=@garmin-trainer/shared\" \"npm run dev --workspace=@garmin-trainer/server\" \"npm run dev --workspace=@garmin-trainer/mobile\"",
+    "dev:shared": "npm run dev --workspace=@garmin-trainer/shared",
+    "dev:server": "npm run build:shared && npm run dev --workspace=@garmin-trainer/server",
+    "dev:mobile": "npm run build:shared && npm run dev --workspace=@garmin-trainer/mobile",
+    "test": "npm run test:all",
+    "test:all": "npm run test --workspaces --if-present",
+    "prisma:validate": "npm run prisma:validate --workspace=@garmin-trainer/server",
+    "prisma:generate": "npm run prisma:generate --workspace=@garmin-trainer/server",
+    "clean": "npm run clean --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "rimraf": "^5.0.10",
+    "typescript": "^5.3.3"
+  }
+}

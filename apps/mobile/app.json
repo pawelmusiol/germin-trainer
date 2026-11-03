@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Garmin AI Trainer",
+    "slug": "garmin-trainer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "resizeMode": "contain",
+          "backgroundColor": "#0f172a"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.garminaitrainer.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Aplikacja używa Bluetooth do łączenia na żywo z rowerem stacjonarnym i bieżnią Matrix (FTMS).",
+        "NSCameraUsageDescription": "Aplikacja używa kamery do nagrywania techniki biegu do analizy biomechanicznej AI."
+      }
+    },
+    "android": {
+      "package": "com.garminaitrainer.app",
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#0f172a"
+      }
+    }
+  }
+}

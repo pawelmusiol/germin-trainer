@@ -1,0 +1,189 @@
+// =============================================================================
+// Prisma Schema — Garmin AI Trainer (PostgreSQL Datasource)
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL") // Optional: uncomment for Supabase/Neon connection poolers
+}
+
+// =============================================================================
+// Enums
+// =============================================================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum GoalDistance {
+  FIVE_K
+  TEN_K
+  HALF_MARATHON
+  MARATHON
+  CUSTOM
+}
+
+enum TrainingPreference {
+  RUN_ONLY
+  HYBRID_BIKE_RUN
+}
+
+enum WorkoutType {
+  RUN
+  BIKE
+  HYBRID
+  TREADMILL
+  STRENGTH
+  OTHER
+}
+
+enum WorkoutStatus {
+  PLANNED
+  COMPLETED
+  SKIPPED
+  MODIFIED
+}
+
+// =============================================================================
+// Core Model: User
+// =============================================================================
+
+model User {
+  id                String              @id @default(cuid())
+  email             String              @unique
+  passwordHash      String
+  name              String?
+  role              UserRole            @default(USER)
+  garminAuth        GarminAuth?
+  goals             TrainingGoal[]
+  metrics           DailyMetric[]
+  workouts          Workout[]
+  techniqueAnalyses TechniqueAnalysis[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+// =============================================================================
+// Core Model: GarminAuth (AES-256 Encrypted Credential Storage)
+// =============================================================================
+
+model GarminAuth {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ciphertext String    @db.Text
+  iv         String
+  authTag    String
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([expiresAt])
+}
+
+// =============================================================================
+// Core Model: TrainingGoal
+// =============================================================================
+
+model TrainingGoal {
+  id                   String             @id @default(cuid())
+  userId               String
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetDistance       GoalDistance
+  customDistanceMeters Float? // Custom distance in meters if targetDistance is CUSTOM
+  targetTime           Int? // Target finish time in seconds (e.g. 2700 for 45:00)
+  eventDate            DateTime? // Date of the target competition or race
+  preference           TrainingPreference @default(RUN_ONLY) // RUN_ONLY vs HYBRID_BIKE_RUN
+  currentVdot          Float? // Current Jack Daniels VDOT score (e.g. 45.2)
+  isActive             Boolean            @default(true)
+  notes                String?            @db.Text
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId, isActive])
+  @@index([isActive])
+}
+
+// =============================================================================
+// Health & Daily Readiness Metric Model: DailyMetric
+// =============================================================================
+
+model DailyMetric {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             DateTime @db.Date // Day of metric recording (YYYY-MM-DD)
+  hrv              Float? // Heart Rate Variability rMSSD (ms) or Garmin HRV score
+  sleepScore       Int? // Garmin Sleep Score (0 - 100)
+  restingHeartRate Int? // Resting Heart Rate (bpm)
+  bodyBattery      Int? // Garmin Body Battery (0 - 100)
+  steps            Int? // Daily step count
+  perceivedFatigue Int? // Subjective user rating (1 = fresh, 5 = exhausted)
+  note             String?  @db.Text // Subjective check-in note
+  rawGarminData    Json? // Optional full unparsed payload from Garmin Connect API
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// =============================================================================
+// Workout & Activity Model: Workout
+// =============================================================================
+
+model Workout {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime // Scheduled or executed date/time
+  type              WorkoutType // RUN, BIKE, TREADMILL, STRENGTH, OTHER
+  title             String
+  description       String?       @db.Text
+  steps             Json // Structured JSON steps (warm-up, intervals, recovery, targets)
+  status            WorkoutStatus @default(PLANNED) // PLANNED, COMPLETED, SKIPPED, MODIFIED
+  garminWorkoutId   String? // Identifier in Garmin Connect calendar
+  garminActivityId  String? // Identifier in Garmin Connect completed activity
+  durationSeconds   Int? // Planned or actual duration in seconds
+  distanceMeters    Float? // Planned or actual distance in meters
+  averageHeartRate  Int? // Average Heart Rate (bpm)
+  averagePowerWatts Int? // Average Power from Matrix bike FTMS (watts)
+  notes             String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([date])
+  @@index([status])
+  @@index([garminWorkoutId])
+}
+
+// =============================================================================
+// Biomechanical & Technique Video Analysis Model: TechniqueAnalysis
+// =============================================================================
+
+model TechniqueAnalysis {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date                DateTime @default(now())
+  videoUrl            String
+  biomechanicalFlaws  Json // Array of detected flaws (e.g. overstriding, hip drop)
+  correctiveExercises Json // Array of prescribed corrective drills & exercises
+  summary             String?  @db.Text // AI coaching narrative from Gemini Video Vision
+  cadenceObserved     Float? // Running cadence observed from video (spm)
+  verticalOscillation Float? // Vertical oscillation observed (cm)
+  groundContactTime   Float? // Ground contact time (ms)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+}
