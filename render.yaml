@@ -3,7 +3,7 @@ services:
     name: garmin-ai-trainer-api
     runtime: node
     plan: free
-    buildCommand: npm install && npm run prisma:generate && npm run build:shared && npm run build:server
+    buildCommand: npm install --include=dev && npm run prisma:generate && npm run build:shared && npm run build:server
     startCommand: npm run start --workspace=@garmin-trainer/server
     healthCheckPath: /health
     envVars:
