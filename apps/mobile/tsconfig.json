@@ -5,6 +5,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "lib": ["DOM", "ES2022"],
+    "types": ["jest"],
     "noEmit": true,
     "declaration": false,
     "declarationMap": false

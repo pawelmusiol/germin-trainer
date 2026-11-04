@@ -650,14 +650,23 @@ export default function App() {
       sessionAccumulator.setEquipmentType(targetType);
       matrixBleService.setEquipmentType(targetType);
 
-      await matrixBleService.connect(device, targetType, (packet: Uint8Array) => {
-        try {
-          sessionAccumulator.ingestRawPacket(packet);
-          setLiveMetrics(sessionAccumulator.getLiveMetrics());
-        } catch {
-          // ignore transient packet decode errors
+      await matrixBleService.connect(
+        device,
+        targetType,
+        (packet: Uint8Array) => {
+          try {
+            sessionAccumulator.ingestRawPacket(packet);
+            setLiveMetrics(sessionAccumulator.getLiveMetrics());
+          } catch {
+            // ignore transient packet decode errors
+          }
+        },
+        () => {
+          setConnectedDevice(null);
+          setBleStatus('DISCONNECTED');
+          setStatusBanner('🔌 Utracono połączenie z Matrix BLE (urządzenie rozłączone).');
         }
-      });
+      );
       setConnectedDevice(device);
       setBleStatus('CONNECTED');
       setShowDeviceScanner(false);

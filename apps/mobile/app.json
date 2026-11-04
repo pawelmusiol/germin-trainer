@@ -12,6 +12,15 @@
           "resizeMode": "contain",
           "backgroundColor": "#0f172a"
         }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "Aplikacja używa Bluetooth do łączenia na żywo z rowerem stacjonarnym i bieżnią Matrix (FTMS).",
+          "bluetoothPeripheralPermission": "Aplikacja używa Bluetooth do łączenia na żywo z rowerem stacjonarnym i bieżnią Matrix (FTMS)."
+        }
       ]
     ],
     "ios": {
@@ -19,6 +28,7 @@
       "bundleIdentifier": "com.garminaitrainer.app",
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "Aplikacja używa Bluetooth do łączenia na żywo z rowerem stacjonarnym i bieżnią Matrix (FTMS).",
+        "NSBluetoothPeripheralUsageDescription": "Aplikacja używa Bluetooth do łączenia na żywo z rowerem stacjonarnym i bieżnią Matrix (FTMS).",
         "NSCameraUsageDescription": "Aplikacja używa kamery do nagrywania techniki biegu do analizy biomechanicznej AI."
       }
     },
@@ -30,10 +40,16 @@
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.CAMERA"
       ],
       "adaptiveIcon": {
         "backgroundColor": "#0f172a"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6514bd96-6034-4bec-88c0-87f8eb02726b"
       }
     }
   }
